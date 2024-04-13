@@ -1,0 +1,15 @@
+<?php
+namespace DummyNamespace;
+
+use Guava\SimplePermissions\Contracts\Permission;
+
+enum DummyClass: string implements Permission
+{
+    case ACCESS = 'viewAny';
+    case CREATE = 'create';
+    case VIEW = 'view';
+    case EDIT = 'update';
+    case DELETE = 'delete';
+    case RESTORE = 'restore';
+    case FORCE_DELETE = 'forceDelete';
+}

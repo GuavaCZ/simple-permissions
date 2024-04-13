@@ -1,0 +1,12 @@
+<?php
+namespace DummyNamespace;
+
+use Guava\SimplePermissions\Contracts\RoleSet;
+
+class DummyClass implements RoleSet
+{
+    public function roles(): array
+    {
+        return [];
+    }
+}

@@ -1,0 +1,12 @@
+<?php
+namespace DummyNamespace;
+
+use Guava\SimplePermissions\Contracts\Role;
+
+class DummyClass implements Role
+{
+    public function permissions(): array
+    {
+        return [];
+    }
+}
