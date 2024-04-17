@@ -6,7 +6,7 @@
         "laravel",
         "simple-permissions"
     ],
-    "homepage": "https://github.com/guavaCZ/simple-permissions-for-laravel",
+    "homepage": "https://github.com/guavaCZ/simple-permissions",
     "license": "MIT",
     "authors": [
         {
@@ -49,7 +49,7 @@
     },
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
-        "clear": "@php vendor/bin/testbench package:purge-simple-permissions-for-laravel --ansi",
+        "clear": "@php vendor/bin/testbench package:purge-simple-permissions --ansi",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "build": [
             "@composer run prepare",
