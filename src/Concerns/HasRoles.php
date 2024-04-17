@@ -2,17 +2,14 @@
 
 namespace Guava\SimplePermissions\Concerns;
 
-use Guava\SimplePermissions\Contracts\Permission;
 use Guava\SimplePermissions\Contracts\Role;
-use Guava\SimplePermissions\Facades\SimplePermissions;
 use Guava\SimplePermissions\Models\Roleable;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 trait HasRoles
 {
-    public function addRole(string|Role $role): void
+    public function addRole(string | Role $role): void
     {
         $role = $role instanceof Role ? $role::class : $role;
 
@@ -25,7 +22,7 @@ trait HasRoles
         ]);
     }
 
-    public function removeRole(string|Role $role): void
+    public function removeRole(string | Role $role): void
     {
         $role = $role instanceof Role ? $role::class : $role;
         /** @var Roleable $record */
@@ -34,12 +31,14 @@ trait HasRoles
         }
     }
 
-    public function hasRole(string|Role $role): bool
+    public function hasRole(string | Role $role): bool
     {
         $role = $role instanceof Role ? $role::class : $role;
+
         return $this->roles()
             ->where('role', $role)
-            ->exists();
+            ->exists()
+        ;
     }
 
     public function setRolesAttribute(array | Collection $roles): void
@@ -65,5 +64,4 @@ trait HasRoles
     {
         return $this->morphMany(Roleable::class, 'roleable');
     }
-
 }

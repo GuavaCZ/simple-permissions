@@ -2,11 +2,11 @@
 
 namespace Guava\SimplePermissions\Tests;
 
+use Guava\SimplePermissions\SimplePermissionsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\Attributes\WithMigration;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Guava\SimplePermissions\SimplePermissionsServiceProvider;
 
 #[WithMigration('laravel')]
 class TestCase extends Orchestra

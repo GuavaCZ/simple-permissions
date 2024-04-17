@@ -3,7 +3,6 @@
 namespace Guava\SimplePermissions\Tests\Feature;
 
 use Guava\SimplePermissions\Facades\SimplePermissions;
-use Guava\SimplePermissions\Models\Permissionable;
 use Guava\SimplePermissions\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Workbench\App\Auth\Permissions\TestPermissions;

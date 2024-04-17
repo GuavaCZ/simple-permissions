@@ -2,11 +2,9 @@
 
 namespace Guava\SimplePermissions\Contracts;
 
-
 interface Role
 {
-
-//    public function id(): string;
+    //    public function id(): string;
 
     /**
      * @return Permission[]

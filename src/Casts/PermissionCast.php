@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PermissionCast implements CastsAttributes
 {
-
     public function get(Model $model, string $key, mixed $value, array $attributes)
     {
         return SimplePermissions::permissionFromString($value);
