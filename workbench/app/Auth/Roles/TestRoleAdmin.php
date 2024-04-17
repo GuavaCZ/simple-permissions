@@ -7,7 +7,6 @@ use Workbench\App\Auth\Permissions\TestPermissions;
 
 class TestRoleAdmin implements Role
 {
-
     public function permissions(): array
     {
         return [

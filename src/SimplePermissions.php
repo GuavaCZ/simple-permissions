@@ -9,7 +9,6 @@ use Spatie\StructureDiscoverer\Discover;
 
 class SimplePermissions
 {
-
     public function make(Permission $permission): string
     {
         return $permission::class .'.'.$permission->value;
@@ -20,13 +19,14 @@ class SimplePermissions
         return Discover::in(app_path('Auth/Roles'))
             ->classes()
             ->implementing(Role::class)
-            ->get();
+            ->get()
+        ;
     }
 
     public function getPermissions(): array
     {
         return collect($this->permissions())
-            ->map(function (string|Permissionable $permission) {
+            ->map(function (string | Permissionable $permission) {
                 if ($permission instanceof Permissionable) {
                     return $permission;
                 }
@@ -36,15 +36,17 @@ class SimplePermissions
                     : $permission;
             })
             ->flatten()
-            ->map(fn(string|Permission $permission) => is_string($permission)
+            ->map(fn (string | Permission $permission) => is_string($permission)
                 ? $permission
                 : $permission->getPermission())
-            ->toArray();
+            ->toArray()
+        ;
     }
 
     public function permissionFromString(string $permission): ?Permission
     {
         [$permission, $value] = str($permission)->explode('.', 2);
+
         return $permission::tryFrom($value);
     }
 }

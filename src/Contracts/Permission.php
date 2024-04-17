@@ -4,5 +4,5 @@ namespace Guava\SimplePermissions\Contracts;
 
 interface Permission
 {
-//    public function id(): string;
+    //    public function id(): string;
 }
