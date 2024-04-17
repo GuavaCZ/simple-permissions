@@ -3,18 +3,24 @@
 namespace Guava\SimplePermissions\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Orchestra\Testbench\Attributes\WithMigration;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Guava\SimplePermissions\SimplePermissionsServiceProvider;
 
+#[WithMigration('laravel')]
 class TestCase extends Orchestra
 {
-    protected function setUp(): void
+    use WithWorkbench;
+
+    public function setUp(): void
     {
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Guava\\SimplePermissions\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'Workbench\\App\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+        // additional setup
     }
 
     protected function getPackageProviders($app)
@@ -24,17 +30,11 @@ class TestCase extends Orchestra
         ];
     }
 
-    public function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app)
     {
         config()->set('database.default', 'testing');
 
-//        $this->loadLaravelMigrations('testing');
-
-//        $this->loadLaravelMigrations(['--database' => 'testing']);
-//        $this->artisan('migrate', ['--database' => 'testbench'])->run();
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_simple-permissions-for-laravel_table.php.stub';
+        $migration = include __DIR__.'/../database/migrations/create_permissions_table.php.stub';
         $migration->up();
-        */
     }
 }

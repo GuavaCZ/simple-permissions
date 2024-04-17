@@ -3,81 +3,61 @@
 namespace Guava\SimplePermissions\Concerns;
 
 use Guava\SimplePermissions\Contracts\Permission;
-use Guava\SimplePermissions\Contracts\Role;
 use Guava\SimplePermissions\Facades\SimplePermissions;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
+use Guava\SimplePermissions\Models\Permissionable;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 trait HasPermissions
 {
-    public function permissions(): Attribute
+    public function addPermission(Permission $permission): void
     {
-        return Attribute::make(
-            get: function () {
-                [$type, $id] = $this->getMorphs('permissionable', null, null);
+        if ($this->permissions()->where('permission', SimplePermissions::make($permission))->exists()) {
+            return;
+        }
 
-                return DB::table(config('simple-permissions.tables.permissions'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->pluck('permission')
-                    ->map(fn ($permission) => SimplePermissions::permissionFromString($permission))
-                ;
-            },
-            set: function ($value) {
-                [$type, $id] = $this->getMorphs('permissionable', null, null);
+        $this->permissions()->create([
+            'permission' => $permission,
+        ]);
+    }
 
-                $oldValues = DB::table(config('simple-permissions.tables.permissions'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->pluck('permission')
-                    ->map(fn ($permission) => SimplePermissions::permissionFromString($permission))
-                ;
+    public function removePermission(Permission $permission): void
+    {
+        /** @var Permissionable $record */
+        if ($record = $this->permissions()->where('permission', SimplePermissions::make($permission))->first()) {
+            $record->delete();
+        }
+    }
 
-                $newValues = collect($value);
-                $remove = $oldValues->diffUsing($newValues, fn ($a, $b) => $a->name === $b->name ? 0 : -1);
-                $add = $newValues->diffUsing($oldValues, fn ($a, $b) => $a->name === $b->name ? 0 : -1);
+    public function hasPermission(Permission $permission): bool
+    {
+        return $this->permissions()
+            ->where('permission', SimplePermissions::make($permission))
+            ->exists()
+        ;
+    }
 
-                DB::table(config('simple-permissions.tables.permissions'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->whereIn('permission', $remove->map(fn ($permission) => SimplePermissions::make($permission)))
-                    ->delete()
-                ;
+    public function setPermissionsAttribute(array | Collection $permissions): void
+    {
+        $permissions = collect($permissions);
 
-                DB::table(config('simple-permissions.tables.permissions'))
-                    ->insert($add->map(fn ($permission) => [
-                        $type => static::class,
-                        $id => $this->getKey(),
-                        'permission' => SimplePermissions::make($permission),
-                    ])->all())
-                ;
-            }
+        $this->permissions()->delete();
+        $this->permissions()->createMany(
+            $permissions
+                ->filter(fn ($permission) => $permission instanceof Permission)
+                ->map(fn (Permission $permission) => ['permission' => $permission])
+                ->unique()
+                ->toArray()
         );
     }
 
-    /**
-     * Determine if the entity has the given abilities.
-     *
-     * @param  Permission|Permission[]|iterable|string  $abilities
-     * @param  array|mixed  $arguments
-     */
-    public function can($abilities, $arguments = []): bool
+    public function getPermissionsAttribute(): Collection
     {
-        return parent::can(
-            abilities: array_map(fn ($ability) => $ability instanceof Permission
-                ? SimplePermissions::make($ability)
-                : $ability, Arr::wrap($abilities)),
-            arguments: $arguments
-        );
+        return $this->permissions()->pluck('permission');
     }
 
-    public function hasPermission(string $permission): bool
+    public function permissions(): MorphMany
     {
-        return (bool) $this->roles
-            ->first(
-                fn (Role $role) => in_array($permission, SimplePermissions::getPermissions($role)),
-                false
-            );
+        return $this->morphMany(Permissionable::class, 'permissionable');
     }
 }

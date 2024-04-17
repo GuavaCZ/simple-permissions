@@ -1,6 +1,6 @@
 <?php
 
-namespace Guava\SimplePermissions\Concerns;
+namespace Guava\SimplePermissions\Filament\Concerns;
 
 use Filament\Facades\Filament;
 use Guava\SimplePermissions\Facades\SimplePermissions;
@@ -12,7 +12,8 @@ trait HasAuthorization
     {
         return static::$permissions ?? str('App\\Auth\\Permissions\\')
             ->append(class_basename(static::getModel()))
-            ->append('Permissions');
+            ->append('Permissions')
+        ;
     }
 
     public static function can(string $action, ?Model $record = null): bool

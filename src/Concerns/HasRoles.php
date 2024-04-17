@@ -2,102 +2,68 @@
 
 namespace Guava\SimplePermissions\Concerns;
 
+use Guava\SimplePermissions\Contracts\Permission;
 use Guava\SimplePermissions\Contracts\Role;
 use Guava\SimplePermissions\Facades\SimplePermissions;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Guava\SimplePermissions\Models\Roleable;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 trait HasRoles
 {
-    use HasPermissions;
-
-    public function roles(): Attribute
+    public function addRole(string|Role $role): void
     {
-        return Attribute::make(
-            get: function () {
-                [$type, $id] = $this->getMorphs('roleable', null, null);
+        $role = $role instanceof Role ? $role::class : $role;
 
-                return DB::table(config('simple-permissions.tables.roles'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->pluck('role')
-//                    ->map(fn ($permission) => SimplePermissions::permissionFromString($permission))
-                    ;
-            },
-            set: function ($value) {
-                [$type, $id] = $this->getMorphs('roleable', null, null);
+        if ($this->roles()->where('role', $role)->exists()) {
+            return;
+        }
 
-                $oldValues = DB::table(config('simple-permissions.tables.roles'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->pluck('role')
-//                    ->map(fn ($permission) => SimplePermissions::permissionFromString($permission))
-                ;
+        $this->roles()->create([
+            'role' => $role,
+        ]);
+    }
 
-                $newValues = collect($value);
-                $remove = $oldValues->diffUsing($newValues, fn ($a, $b) => $a === $b ? 0 : -1);
-                $add = $newValues->diffUsing($oldValues, fn ($a, $b) => $a === $b ? 0 : -1);
+    public function removeRole(string|Role $role): void
+    {
+        $role = $role instanceof Role ? $role::class : $role;
+        /** @var Roleable $record */
+        if ($record = $this->roles()->where('role', $role)->first()) {
+            $record->delete();
+        }
+    }
 
-                DB::table(config('simple-permissions.tables.roles'))
-                    ->where($type, static::class)
-                    ->where($id, $this->getKey())
-                    ->whereIn('role', $remove)
-                    ->delete()
-                ;
+    public function hasRole(string|Role $role): bool
+    {
+        $role = $role instanceof Role ? $role::class : $role;
+        return $this->roles()
+            ->where('role', $role)
+            ->exists();
+    }
 
-                DB::table(config('simple-permissions.tables.roles'))
-                    ->insert($add->map(fn ($role) => [
-                        $type => static::class,
-                        $id => $this->getKey(),
-                        'role' => $role,
-                    ])->all())
-                ;
-            }
+    public function setRolesAttribute(array | Collection $roles): void
+    {
+        $roles = collect($roles);
+
+        $this->roles()->delete();
+        $this->roles()->createMany(
+            $roles
+                ->filter(fn (string | Role $role) => $role instanceof Role || class_exists($role))
+                ->map(fn (string | Role $role) => ['role' => is_string($role) ? $role : $role::class])
+                ->unique()
+                ->toArray()
         );
     }
 
-    public function addRole(Role | string | array ...$roles): Collection
+    public function getRolesAttribute(): Collection
     {
-        $roles = Arr::flatten($roles);
-
-        $newRoles = $this->roles;
-        foreach ($roles as $role) {
-            $role = is_string($role) ? new $role : $role;
-
-            if ($newRoles->contains(fn (Role $item) => $item::class === $role::class)) {
-                continue;
-            }
-
-            $newRoles->push($role);
-        }
-        $this->update(['roles' => $newRoles]);
-
-        return $newRoles;
+        return $this->roles()->pluck('role');
     }
 
-    public function hasRole(Role | string | array ...$roles): bool
+    public function roles(): MorphMany
     {
-        $roles = Arr::map(Arr::flatten($roles), fn ($role) => is_string($role) ? $role : $role::class);
-
-        return collect($roles)->every(fn ($value) => $this->roles->contains(fn (Role $role) => $role::class === $value));
+        return $this->morphMany(Roleable::class, 'roleable');
     }
 
-    public function hasRoleAny(Role | string | array ...$roles): bool
-    {
-        $roles = Arr::map(Arr::flatten($roles), fn ($role) => is_string($role) ? $role : $role::class);
-
-        return $this->roles->contains(fn ($role) => in_array($role::class, $roles));
-    }
-
-    public function removeRole(Role | string | array ...$roles): Collection
-    {
-        $roles = Arr::map(Arr::flatten($roles), fn ($role) => is_string($role) ? $role : $role::class);
-
-        $newRoles = collect($this->roles)->filter(fn (Role $item) => ! in_array($item::class, $roles));
-        $this->update(['roles' => $newRoles]);
-
-        return $newRoles;
-    }
 }

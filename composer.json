@@ -1,12 +1,12 @@
 {
-    "name": "guava/simple-permissions-for-laravel",
+    "name": "guava/simple-permissions",
     "description": "Simple permission and role system for Laravel. Supports enums.",
     "keywords": [
         "Guava",
         "laravel",
-        "simple-permissions-for-laravel"
+        "simple-permissions"
     ],
-    "homepage": "https://github.com/guava/simple-permissions-for-laravel",
+    "homepage": "https://github.com/guavaCZ/simple-permissions-for-laravel",
     "license": "MIT",
     "authors": [
         {
@@ -61,7 +61,7 @@
             "@php vendor/bin/testbench serve"
         ],
         "analyse": "vendor/bin/phpstan analyse",
-        "test": "vendor/bin/pest",
+        "test": "vendor/bin/phpunit",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint"
     },

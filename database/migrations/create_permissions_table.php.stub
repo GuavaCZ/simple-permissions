@@ -9,16 +9,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create(config('simple-permissions.tables.permissions'), function (Blueprint $table) {
+            $table->id();
             $table->morphs('permissionable');
             $table->string('permission');
-
-            // $table->timestamps();
         });
         Schema::create(config('simple-permissions.tables.roles'), function (Blueprint $table) {
+            $table->id();
             $table->morphs('roleable');
             $table->string('role');
-
-            // $table->timestamps();
         });
     }
 };

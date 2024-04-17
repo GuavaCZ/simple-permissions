@@ -4,6 +4,7 @@ namespace Guava\SimplePermissions;
 
 use Guava\SimplePermissions\Contracts\Permission;
 use Guava\SimplePermissions\Contracts\Role;
+use Guava\SimplePermissions\Models\Permissionable;
 use Spatie\StructureDiscoverer\Discover;
 
 class SimplePermissions

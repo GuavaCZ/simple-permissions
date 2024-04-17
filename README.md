@@ -1,4 +1,4 @@
-![simple-permissions-for-laravel Banner](docs/images/banner.jpg)
+![simple-permissions Banner](docs/images/banner.jpg)
 
 
 # Simple permission and role system for Laravel. Supports enums.
@@ -8,7 +8,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/guava/simple-permissions-for-laravel/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/guava/simple-permissions-for-laravel/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/guava/simple-permissions-for-laravel.svg?style=flat-square)](https://packagist.org/packages/guava/simple-permissions-for-laravel)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This is an opinionated simple permissions & roles system for Laravel. It allows you to define roles and permissions as PHP classes and enums directly in your codebase. This allows for out of the box auto-completion support and superb developer experience.
 
 ## Showcase
 
@@ -25,20 +25,20 @@ While our plugin is available for all to use, if you are utilizing it for commer
 You can install the package via composer:
 
 ```bash
-composer require guava/simple-permissions-for-laravel
+composer require guava/simple-permissions
 ```
 
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="simple-permissions-for-laravel-migrations"
+php artisan vendor:publish --tag="simple-permissions-migrations"
 php artisan migrate
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="simple-permissions-for-laravel-config"
+php artisan vendor:publish --tag="simple-permissions-config"
 ```
 
 This is the contents of the published config file:
@@ -48,17 +48,93 @@ return [
 ];
 ```
 
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="simple-permissions-for-laravel-views"
-```
-
 ## Usage
 
+### Model setup
+You need to add the `HasAccessControl` trait to your models that you want to add roles and permissions to.
+
+This will add all necesary relationships and methods to start using access control.
 ```php
-$simplePermissions = new Guava\SimplePermissions();
-echo $simplePermissions->echoPhrase('Hello, Guava!');
+use Guava\SimplePermissions\Concerns\HasAccessControl;
+
+public class User extends Model
+{
+    use HasAccessControl;
+    
+    // ...
+}
+```
+
+### Creating permissions
+Permissions can be created using an artisan command.
+Let's say you have a model `Post` and want to create permissions for handling access to the Post resource.
+
+Simply run:
+```bash
+php artisan make:permission PostPermissions
+```
+
+This will create a new enum in `App\Auth\Permissions\PostPermissions` with some predefined CRUD permissions:
+
+```php
+public enum PostPermissions: string implements \Guava\SimplePermissions\Contracts\Permission 
+{
+    case VIEW = 'view';
+    // ...Other redefined permissions
+}
+```
+
+### Creating Roles
+Roles can be created using an artisan command.
+
+Simply run:
+```bash
+php artisan make:role SuperAdmin
+```
+
+This will create a new role in `App\Auth\Roles\SuperAdmin`:
+
+```php
+public class SuperAdmin implements \Guava\SimplePermissions\Contracts\Role
+{
+
+    public function permissions() : array
+    {
+        return [
+            // Add permissions here
+            // Either one by one, such as:
+            PostPermissions::VIEW,
+            
+            // or all at once:
+           ...PostPermissions::cases()
+        ];
+    }
+}
+```
+
+### Checking if a user has a permission
+You can use Laravel's built-in methods to check permissions:
+
+For example if a user has permissions to view a post, you could do:
+```php
+$user->can(PostPermissions::VIEW)
+```
+
+### FilamentPHP integration
+All you need to do in order to add access control to your filament resources is to implement the `HasAuthorization` trait in your resource and define the Permission enum.
+
+```php
+use Guava\SimplePermissions\Concerns\HasAuthorization;
+use App\Auth\Permissions\PostPermissions;
+
+public class PostResource extends Resource
+{
+    use HasAuthorization;
+    
+    protected static string $permissions = PostPermissions::class;
+    
+    // ...
+}
 ```
 
 ## Testing
