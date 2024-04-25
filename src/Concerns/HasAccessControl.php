@@ -3,14 +3,18 @@
 namespace Guava\SimplePermissions\Concerns;
 
 use Guava\SimplePermissions\Contracts\Permission;
-use Guava\SimplePermissions\Contracts\Role;
 use Guava\SimplePermissions\Facades\SimplePermissions;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
 trait HasAccessControl
 {
-    use HasPermissions;
-    use HasRoles;
+    use HasPermissions {
+        HasPermissions::hasPermission as hasPermissionViaModel;
+    }
+    use HasRoles {
+        HasRoles::hasPermission as hasPermissionViaRole;
+    }
 
     /**
      * Determine if the entity has the given abilities.
@@ -28,16 +32,12 @@ trait HasAccessControl
         );
     }
 
-    public function hasPermission(string $permission): bool
+    public function hasPermission(Permission $permission, ?Model $target = null): bool
     {
-        $permission = SimplePermissions::permissionFromString($permission);
-
-        if (in_array($permission, $this->permissions->toArray())) {
+        if ($this->hasPermissionViaModel($permission, $target)) {
             return true;
         }
 
-        return (bool) $this->roles->first(
-            fn (Role $role) => in_array($permission, $role->permissions()),
-        );
+        return $this->hasPermissionViaRole($permission, $target);
     }
 }

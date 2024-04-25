@@ -5,21 +5,23 @@ namespace Guava\SimplePermissions;
 use Guava\SimplePermissions\Contracts\Permission;
 use Guava\SimplePermissions\Contracts\Role;
 use Guava\SimplePermissions\Models\Permissionable;
+use Illuminate\Support\Collection;
 use Spatie\StructureDiscoverer\Discover;
 
 class SimplePermissions
 {
     public function make(Permission $permission): string
     {
-        return $permission::class .'.'.$permission->value;
+        return $permission::class . '.' . $permission->value;
     }
 
-    public function getRoles(): array
+    public function getRoles(): Collection
     {
-        return Discover::in(app_path('Auth/Roles'))
+        return collect(Discover::in(app_path('Auth/Roles'))
             ->classes()
             ->implementing(Role::class)
-            ->get()
+            ->get())
+            ->map(fn (string $role) => new $role)
         ;
     }
 
@@ -45,6 +47,10 @@ class SimplePermissions
 
     public function permissionFromString(string $permission): ?Permission
     {
+        if (! str($permission)->contains('.')) {
+            return null;
+        }
+
         [$permission, $value] = str($permission)->explode('.', 2);
 
         return $permission::tryFrom($value);

@@ -19,7 +19,10 @@ trait HasAuthorization
     public static function can(string $action, ?Model $record = null): bool
     {
         if ($permission = static::getPermissions()::tryFrom($action)) {
-            return Filament::auth()->user()->can(SimplePermissions::make($permission));
+//            dd($permission, static::isScopedToTenant() ? Filament::getTenant() : null);
+            return Filament::auth()->user()->can($permission, [
+                'target' => static::isScopedToTenant() ? Filament::getTenant() : null,
+            ]);
         }
 
         return parent::can($action, $record);

@@ -12,6 +12,8 @@ class Permissionable extends Model
 
     protected $fillable = [
         'permission',
+        'targettable_type',
+        'targettable_id',
     ];
 
     protected $casts = [
@@ -19,6 +21,11 @@ class Permissionable extends Model
     ];
 
     public function permissionable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function targettable(): MorphTo
     {
         return $this->morphTo();
     }

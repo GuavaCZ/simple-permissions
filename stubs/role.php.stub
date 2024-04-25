@@ -2,9 +2,12 @@
 namespace DummyNamespace;
 
 use Guava\SimplePermissions\Contracts\Role;
+use Guava\SimplePermissions\Concerns\HasName;
 
 class DummyClass implements Role
 {
+    use HasName;
+
     public function permissions(): array
     {
         return [];

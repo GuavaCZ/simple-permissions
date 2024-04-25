@@ -11,11 +11,13 @@ return new class extends Migration
         Schema::create(config('simple-permissions.tables.permissions'), function (Blueprint $table) {
             $table->id();
             $table->morphs('permissionable');
+            $table->nullableMorphs('targettable');
             $table->string('permission');
         });
         Schema::create(config('simple-permissions.tables.roles'), function (Blueprint $table) {
             $table->id();
             $table->morphs('roleable');
+            $table->nullableMorphs('targettable');
             $table->string('role');
         });
     }

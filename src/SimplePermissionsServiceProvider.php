@@ -21,14 +21,15 @@ class SimplePermissionsServiceProvider extends PackageServiceProvider
             ->hasMigration('create_permissions_table')
             ->hasCommand(MakeRoleSetCommand::class)
             ->hasCommand(MakeRoleCommand::class)
-            ->hasCommand(MakePermissionCommand::class)
-        ;
+            ->hasCommand(MakePermissionCommand::class);
     }
 
     public function packageBooted(): void
     {
-        Gate::after(function ($user, $ability) {
-            return $user->hasPermission($ability);
+        Gate::before(function ($user, $ability, $arguments) {
+            if ($permission = \Guava\SimplePermissions\Facades\SimplePermissions::permissionFromString($ability)) {
+                return $user->hasPermission($permission, data_get($arguments, 'target'));
+            }
         });
     }
 }

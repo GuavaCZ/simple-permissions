@@ -12,6 +12,8 @@ class Roleable extends Model
 
     protected $fillable = [
         'role',
+        'targettable_type',
+        'targettable_id',
     ];
 
     protected $casts = [
@@ -19,6 +21,11 @@ class Roleable extends Model
     ];
 
     public function roleable(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function targettable(): MorphTo
     {
         return $this->morphTo();
     }
