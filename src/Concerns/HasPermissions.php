@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 trait HasPermissions
 {
-    public function addPermission(Permission $permission, ?Model $target = null): void
+    public function addPermission(Permission $permission, ?Model $target = null): static
     {
         $query = $this->permissions();
 
         if ($this->modifyPermissionsQuery($query, $permission, $target)->exists()) {
-            return;
+            return $this;
         }
 
         $query->create([
@@ -24,14 +24,18 @@ trait HasPermissions
             'targettable_type' => $target?->getMorphClass(),
             'targettable_id' => $target?->getKey(),
         ]);
+
+        return $this;
     }
 
-    public function removePermission(Permission $permission, ?Model $target = null): void
+    public function removePermission(Permission $permission, ?Model $target = null): static
     {
         /** @var Permissionable $record */
         if ($record = $this->modifyPermissionsQuery($this->permissions(), $permission, $target)->first()) {
             $record->delete();
         }
+
+        return $this;
     }
 
     public function hasPermission(Permission $permission, ?Model $target = null): bool

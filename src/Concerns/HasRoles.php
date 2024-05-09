@@ -12,12 +12,12 @@ use Illuminate\Support\Collection;
 
 trait HasRoles
 {
-    public function addRole(string | Role $role, ?Model $target = null): void
+    public function addRole(string | Role $role, ?Model $target = null): static
     {
         $role = $role instanceof Role ? $role::class : $role;
 
         if ($this->modifyRolesQuery($this->roles(), $role, $target)->exists()) {
-            return;
+            return $this;
         }
 
         $this->roles()->create([
@@ -25,15 +25,19 @@ trait HasRoles
             'targettable_type' => $target?->getMorphClass(),
             'targettable_id' => $target?->getKey(),
         ]);
+
+        return $this;
     }
 
-    public function removeRole(string | Role $role, ?Model $target = null): void
+    public function removeRole(string | Role $role, ?Model $target = null): static
     {
         $role = $role instanceof Role ? $role::class : $role;
         /** @var Roleable $record */
         if ($record = $this->modifyRolesQuery($this->roles(), $role, $target)->first()) {
             $record->delete();
         }
+
+        return $this;
     }
 
     public function hasRole(string | Role $role, ?Model $target = null): bool
