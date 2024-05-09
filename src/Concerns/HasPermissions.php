@@ -50,7 +50,8 @@ trait HasPermissions
             ->where('targettable_id', $target?->getKey())
             ->get()
             ->pluck('permission')
-            ->toArray();
+            ->toArray()
+        ;
     }
 
     //    public function setPermissionsAttribute(array | Collection $permissions): void
@@ -85,6 +86,7 @@ trait HasPermissions
         return $query
             ->where('permission', SimplePermissions::make($permission))
             ->where('targettable_type', $target?->getMorphClass())
-            ->where('targettable_id', $target?->getKey());
+            ->where('targettable_id', $target?->getKey())
+        ;
     }
 }

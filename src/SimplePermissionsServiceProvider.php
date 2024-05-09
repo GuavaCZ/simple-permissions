@@ -21,7 +21,8 @@ class SimplePermissionsServiceProvider extends PackageServiceProvider
             ->hasMigration('create_permissions_table')
             ->hasCommand(MakeRoleSetCommand::class)
             ->hasCommand(MakeRoleCommand::class)
-            ->hasCommand(MakePermissionCommand::class);
+            ->hasCommand(MakePermissionCommand::class)
+        ;
     }
 
     public function packageBooted(): void
