@@ -32,6 +32,11 @@ You can publish and run the migrations with:
 
 ```bash
 php artisan vendor:publish --tag="simple-permissions-migrations"
+```
+
+You have to reneme the migration: `0000_00_00_000000_create_permissions_table.php`!
+
+```bash
 php artisan migrate
 ```
 
