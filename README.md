@@ -50,6 +50,10 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'tables' => [
+        'roles' => 'model_has_role',
+        'permissions' => 'model_has_permission',
+    ],
 ];
 ```
 
