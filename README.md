@@ -32,6 +32,11 @@ You can publish and run the migrations with:
 
 ```bash
 php artisan vendor:publish --tag="simple-permissions-migrations"
+```
+
+You have to reneme the migration: `0000_00_00_000000_create_permissions_table.php`!
+
+```bash
 php artisan migrate
 ```
 
@@ -45,6 +50,10 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'tables' => [
+        'roles' => 'model_has_role',
+        'permissions' => 'model_has_permission',
+    ],
 ];
 ```
 
