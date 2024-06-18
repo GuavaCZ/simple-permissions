@@ -52,9 +52,7 @@ trait HasRoles
         return $this->roles()
             ->where('targettable_type', $target?->getMorphClass())
             ->where('targettable_id', $target?->getKey())
-            ->get()
             ->pluck('role')
-            ->map(fn (string $role) => class_exists($role) ? new $role : $role)
         ;
     }
 
@@ -63,7 +61,6 @@ trait HasRoles
         return (bool) $this->roles()
             ->where('targettable_type', $target?->getMorphClass())
             ->where('targettable_id', $target?->getKey())
-            ->get()
             ->pluck('role')
             ->first(
                 fn (Role $role) => in_array($permission, $role->permissions()),
